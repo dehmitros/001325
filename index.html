@@ -45,7 +45,11 @@
     <script>
         function fetchQuotes() {
             return fetch('quotes.json')
-                .then(response => response.json())
+                .then(response => response.text())
+                .then(base64 => {
+                    const decodedData = atob(base64);
+                    return JSON.parse(decodedData);
+                })
                 .catch(error => {
                     console.error('Error fetching quotes:', error);
                     return [];
