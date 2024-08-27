@@ -1,43 +1,96 @@
 <!DOCTYPE html>
 <html>
-    <head>
-        <div class="p1"></div> {
+<head>
+    <style>
+        body, html {
+            height: 100%;
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
             font-family: "Lucida Console", monospace;
-          }
-    </head>
-    <body>
-        <p class="p1" id="demo"></p>
-        <center>
-            <script>
-            // Set the date we're counting down to
-            var countDownDate = new Date("Jan 5, 2025 15:00:00").getTime();
+            background-color: #121212; /* Dark background */
+            color: #ffffff; /* Light text color */
+        }
+        .timer {
+            font-size: 60px;
+            text-align: center;
+            letter-spacing: 5px;
+        }
+        .char {
+            opacity: 0;
+            display: inline-block;
+            transition: opacity 0.5s ease;
+        }
+    </style>
+</head>
+<body>
+    <div class="timer" id="demo"></div>
 
-            // Update the count down every 1 second
-            var x = setInterval(function() {
+    <script>
+        // Set the date we're counting down to
+        var countDownDate = new Date("Jan 5, 2025 15:00:00").getTime();
 
-            // Get today's date and time
-            var now = new Date().getTime();
+        // Obfuscate the text by replacing each character with a block
+        function obfuscateText(text) {
+            return text.replace(/\S/g, '█');
+        }
 
-            // Find the distance between now and the count down date
-            var distance = countDownDate - now;
+        // Reveal the text with a fade-in effect for each segment (days, hours, minutes, seconds)
+        function revealText(element, text) {
+            element.innerHTML = ''; // Clear the current content
+            let delays = [0, 4, 8, 12]; // Delay points for days, hours, minutes, seconds
+            for (let i = 0; i < text.length; i++) {
+                let span = document.createElement('span');
+                span.className = 'char';
+                span.textContent = text[i];
+                element.appendChild(span);
 
-            // Time calculations for days, hours, minutes and seconds
-            var days = Math.floor(distance / (1000 * 60 * 60 * 24));
-            var hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-            var minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
-            var seconds = Math.floor((distance % (1000 * 60)) / 1000);
-
-            // Display the result in the element with id="demo"
-            document.getElementById("demo").innerHTML = days + "d " + hours + "h "
-            + minutes + "m " + seconds + "s ";
-
-            // If the count down is finished, write some text
-            if (distance < 0) {
-                clearInterval(x);
-                document.getElementById("demo").innerHTML = "EXPIRED";
+                // Reveal each segment after a delay
+                let delay = delays.find(d => i < d) || i;
+                setTimeout(() => {
+                    span.style.opacity = '1';
+                }, delay * 500); // Adjust timing as needed
             }
+        }
+
+        // Function to start the timer
+        function startTimer() {
+            var x = setInterval(function() {
+                // Get today's date and time
+                var now = new Date().getTime();
+
+                // Find the distance between now and the countdown date
+                var distance = countDownDate - now;
+
+                // Time calculations for days, hours, minutes, and seconds
+                var days = Math.floor(distance / (1000 * 60 * 60 * 24));
+                var hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                var minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+                var seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+                // Construct the full time string
+                var timeString = days + "d " + hours + "h " + minutes + "m " + seconds + "s ";
+
+                // Update the content directly
+                document.getElementById("demo").textContent = timeString;
+
+                // If the countdown is finished, write some text
+                if (distance < 0) {
+                    clearInterval(x);
+                    document.getElementById("demo").innerHTML = "EXPIRED";
+                }
             }, 1000);
-            </script>
-        </center>
-    </body>
+        }
+
+        // Initial obfuscation and reveal
+        var initialTimeString = "██d ██h ██m ██s";
+        var demoElement = document.getElementById("demo");
+        demoElement.innerHTML = obfuscateText(initialTimeString);
+        revealText(demoElement, initialTimeString);
+
+        // Start the timer after the reveal animation is complete
+        setTimeout(startTimer, 500 * 16); // Adjust timing to match the full reveal duration (16 characters * 500ms)
+    </script>
+</body>
 </html>
