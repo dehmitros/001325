@@ -1,0 +1,109 @@
+<div id="dpad-container">
+  <style>
+    #dpad-container {
+      font-family: Arial, sans-serif;
+    }
+    #dpad-container .dpad {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 5px;
+      background-color: #333;
+      padding: 10px;
+      border-radius: 7px;
+      width: fit-content;
+    }
+    #dpad-container .dpad button {
+      width: 40px;
+      height: 40px;
+      font-size: 12px;
+      border: none;
+      background-color: #555;
+      color: white;
+      cursor: pointer;
+      transition: background-color 0.3s;
+    }
+    #dpad-container .dpad button:hover {
+      background-color: #777;
+    }
+    #dpad-container .dpad button:active {
+      background-color: #999;
+    }
+    #dpad-container #dpad-up { grid-column: 2; }
+    #dpad-container #dpad-left { grid-column: 1; grid-row: 2; }
+    #dpad-container #dpad-right { grid-column: 3; grid-row: 2; }
+    #dpad-container #dpad-down { grid-column: 2; grid-row: 3; }
+  </style>
+  <div class="dpad">
+    <button id="dpad-up">↑</button>
+    <button id="dpad-left">←</button>
+    <button id="dpad-right">→</button>
+    <button id="dpad-down">↓</button>
+  </div>
+</div>
+<audio id="audioPlayer">
+  <source src="hehe.mp3" type="audio/mpeg">
+  Your browser does not support the audio element.
+</audio>
+<script>
+	(function() {
+	  const buttons = ['up', 'down', 'left', 'right'];
+	  const secretHash = 1467692204;
+	  let enteredCode = [];
+
+	  function hashCode(sequence) {
+		return sequence.reduce((acc, cur) => {
+		  return (acc * 31 + cur.charCodeAt(0)) | 0;
+		}, 0);
+	  }
+
+	  function playSound(frequency) {
+		const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+		const oscillator = audioContext.createOscillator();
+		oscillator.type = 'sine';
+		oscillator.frequency.setValueAtTime(frequency, audioContext.currentTime);
+		oscillator.connect(audioContext.destination);
+		oscillator.start();
+		oscillator.stop(audioContext.currentTime + 0.1);
+	  }
+
+	  buttons.forEach((direction, index) => {
+		const button = document.getElementById(`dpad-${direction}`);
+		button.addEventListener('click', () => {
+		  const frequency = 220 * (index + 1);
+		  playSound(frequency);
+		  enteredCode.push(direction);
+
+		  if (enteredCode.length > 8) {
+			enteredCode.shift();
+		  }
+
+		  console.log("Current Sequence:", enteredCode);
+
+		  if (enteredCode.length === 8) {
+			const currentHash = hashCode(enteredCode);
+			console.log("Current Hash:", currentHash);
+			console.log("Expected Hash:", secretHash);
+			
+			const audio = document.getElementById('audioPlayer');
+			if (currentHash === secretHash) {
+			  console.log('Code matched');
+			  setTimeout(() => {
+				// Play the audio
+				window.parent.postMessage('correct', '*');
+				audio.play()
+				  .then(() => {
+					console.log('Audio started playing');
+				  })
+				  .catch(error => {
+					console.error('Error playing audio:', error);
+				  });
+			  }, 500);
+			  enteredCode = [];
+			} else {
+			  console.log('Incorrect sequence.');
+			}
+		  }
+		});
+	  });
+	})();
+</script>

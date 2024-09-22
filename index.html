@@ -1,6 +1,10 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>001325</title>
+	<link rel="icon" href="/favicon.png" type="image/png">
     <style>
         body, html {
             height: 100%;
@@ -11,37 +15,66 @@
             font-family: "Lucida Console", monospace;
             background-color: #121212;
             color: #ffffff;
-            overflow: hidden;
+            overflow-y: auto;
         }
+
         .container {
             text-align: center;
             position: relative;
+            padding: 10px;
+            max-width: 90%;
+            box-sizing: border-box;
         }
-        .quote {
-            font-size: 24px;
+
+        .quote, .numbers {
+            font-size: 5vw;
             letter-spacing: 1px;
             opacity: 0;
             transition: opacity 2s ease, transform 1s ease-in-out;
             position: relative;
             top: 0;
-            margin-bottom: 20px;
+            margin-bottom: 5vw;
+            min-height: 5vw;
         }
+
         .timer {
-            font-size: 60px;
-            letter-spacing: 5px;
+            font-size: 12vw;
+            letter-spacing: 2vw;
             opacity: 0;
             transform: translateY(100%);
             transition: opacity 2s ease, transform 1s ease-in-out;
             position: relative;
+            margin-bottom: 5vw;
+        }
+
+        @media (min-width: 768px) {
+            .quote, .numbers {
+                font-size: 24px;
+                margin-bottom: 20px;
+            }
+
+            .timer {
+                font-size: 60px;
+                letter-spacing: 5px;
+                margin-bottom: 20px;
+            }
+        }
+			.bottom-center {
+				position: fixed;
+				bottom: 20px;
+				left: 50%;
+				transform: translateX(-50%);
+				opacity: 0;
+				transition: opacity 1s ease-in-out;
         }
     </style>
 </head>
 <body>
     <div class="container">
         <div class="quote" id="quote"></div>
-        <div class="timer" id="demo">███d ██h ██m ██s</div>
+        <div class="timer" id="demo">---d --h --m --s</div>
+        <div class="numbers" id="numbers"></div>
     </div>
-
     <script>
         function fetchQuotes() {
             return fetch('quotes.json')
@@ -67,13 +100,24 @@
 
             setTimeout(function() {
                 var timerElement = document.getElementById("demo");
-                
-                quoteElement.style.transform = 'translateY(-30px)';
-                
+                quoteElement.style.transform = 'translateY(-3vw)';
                 timerElement.style.opacity = '1';
-                timerElement.style.transform = 'translateY(-30px)';
+                timerElement.style.transform = 'translateY(-3vw)';
+
+                setTimeout(displayNumbers, 3000);
 
             }, 5000);
+        }
+
+        function displayNumbers() {
+            var numbersElement = document.getElementById("numbers");
+            var randomNumbers = Array.from({length: 5}, () => Math.floor(Math.random() * 50) + 1);
+            var randomSpecialNumbers = Array.from({length: 2}, () => Math.floor(Math.random() * 12) + 1);
+            
+            numbersElement.textContent = randomNumbers.join(", ") + " | " + randomSpecialNumbers.join(", ");
+            window.getComputedStyle(numbersElement).opacity;
+            numbersElement.style.opacity = '1';
+            numbersElement.style.transform = 'translateY(-3vw)';
         }
 
         function addLeadingZeros(num, length) {
@@ -81,7 +125,7 @@
         }
 
         function startTimer() {
-            var countDownDate = new Date("Jan 5, 2025 15:00:00").getTime();
+            var countDownDate = new Date("Aug 30, 2025 15:00:00").getTime();
 
             var x = setInterval(function() {
                 var now = new Date().getTime();
@@ -107,5 +151,41 @@
         });
         setTimeout(startTimer, 6000);
     </script>
+	<div class="bottom-center" id="dpad-container"></div>
+	<script>
+	fetch('dpad.html')
+		.then(response => response.text())
+		.then(data => {
+			document.getElementById('dpad-container').innerHTML = data;
+			// Execute any scripts in the loaded content
+			Array.from(document.getElementById('dpad-container').getElementsByTagName('script'))
+				.forEach(oldScript => {
+					const newScript = document.createElement('script');
+					Array.from(oldScript.attributes).forEach(attr => newScript.setAttribute(attr.name, attr.value));
+					newScript.appendChild(document.createTextNode(oldScript.innerHTML));
+					oldScript.parentNode.replaceChild(newScript, oldScript);
+				});
+		});
+    </script>
+	
+	<script>
+	document.addEventListener('DOMContentLoaded', function() {
+		setTimeout(function() {
+			const dpadContainer = document.getElementById('dpad-container');
+			dpadContainer.style.opacity = '1';
+		}, 10000);
+	});
+	</script>
+		
+	<script>
+		window.addEventListener('message', (event) => {
+			if (event.data === 'correct') {
+				console.log("Received 'correct' from dpad.html, loading nice.js");
+				const script = document.createElement('script');
+				script.src = 'nice.js';
+				document.head.appendChild(script);
+			}
+		});
+	</script>
 </body>
 </html>
