@@ -112,14 +112,26 @@
 
         function displayNumbers() {
             var numbersElement = document.getElementById("numbers");
-            var randomNumbers = Array.from({length: 5}, () => Math.floor(Math.random() * 50) + 1);
-            var randomSpecialNumbers = Array.from({length: 2}, () => Math.floor(Math.random() * 12) + 1);
+
+            var randomNumbers = new Set();
+            while (randomNumbers.size < 5) {
+                randomNumbers.add(Math.floor(Math.random() * 50) + 1);
+            }
             
+            var randomSpecialNumbers = new Set();
+            while (randomSpecialNumbers.size < 2) {
+                randomSpecialNumbers.add(Math.floor(Math.random() * 12) + 1);
+            }
+
+            randomNumbers = Array.from(randomNumbers);
+            randomSpecialNumbers = Array.from(randomSpecialNumbers);
+
             numbersElement.textContent = randomNumbers.join(", ") + " | " + randomSpecialNumbers.join(", ");
             window.getComputedStyle(numbersElement).opacity;
             numbersElement.style.opacity = '1';
             numbersElement.style.transform = 'translateY(-3vw)';
         }
+
 
         function addLeadingZeros(num, length) {
             return num.toString().padStart(length, '0');
@@ -158,7 +170,6 @@
 		.then(response => response.text())
 		.then(data => {
 			document.getElementById('dpad-container').innerHTML = data;
-			// Execute any scripts in the loaded content
 			Array.from(document.getElementById('dpad-container').getElementsByTagName('script'))
 				.forEach(oldScript => {
 					const newScript = document.createElement('script');
